@@ -17,6 +17,9 @@ class Dealer(TimeStampedModel, UUIDModel, models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0, blank=True)
     api_key = models.CharField(max_length=32, default='', blank=True, unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 # Create an API token when an user is created
 @receiver(post_save, sender=Dealer)

@@ -6,6 +6,9 @@ from birkoss.models import TimeStampedModel, UUIDModel
 class Make(TimeStampedModel, UUIDModel, models.Model):
     name = models.CharField(max_length=100, default='')
 
+    def __str__(self):
+        return self.name
+
 
 class Model(TimeStampedModel, UUIDModel, models.Model):
     make = models.ForeignKey(
@@ -16,6 +19,9 @@ class Model(TimeStampedModel, UUIDModel, models.Model):
     )
 
     name = models.CharField(max_length=100, default='')
+
+    def __str__(self):
+        return self.make.name + " " + self.name
 
 
 class Car(TimeStampedModel, UUIDModel, models.Model):
@@ -60,3 +66,6 @@ class Car(TimeStampedModel, UUIDModel, models.Model):
     raw_transmission = models.CharField(max_length=100, default='', blank=True)
     raw_fuel_type = models.CharField(max_length=100, default='', blank=True)
     raw_drivetrain = models.CharField(max_length=100, default='', blank=True)
+
+    def __str__(self):
+        return self.model.__str__() + " " + self.trim + " " + self.year
