@@ -77,5 +77,20 @@ def fetch_car(**kwargs):
         car = Car.objects.filter(**kwargs).first()
     except ValidationError:
         return None
-
     return car
+
+
+def fetch_make(**kwargs):
+    try:
+        make = Make.objects.filter(**kwargs).first()
+    except ValidationError:
+        return None
+    return make
+
+
+def fetch_model(**kwargs):
+    try:
+        model = Model.objects.filter(**kwargs).first()
+    except ValidationError:
+        return None
+    return model

@@ -4,9 +4,9 @@ from rest_framework.views import APIView
 
 from birkoss.helpers import create_error_response
 from dealers.models import Dealer, fetch_dealer
-from cars.models import Car, fetch_car
+from cars.models import Car, Make, Model, fetch_car, fetch_make, fetch_model
 
-from .serializers import CarSerializer
+from .serializers import CarSerializer, CarWriteSerializer
 
 
 class cars(APIView):
@@ -26,6 +26,49 @@ class cars(APIView):
             'status': status.HTTP_200_OK,
             'dealers': serializer.data
         }, status=status.HTTP_200_OK)
+
+    def post(self, request, dealer_id, format=None):
+        dealer = fetch_dealer(id=dealer_id)
+        if dealer is None:
+            return create_error_response("Invalid dealer")
+
+        if "make" not in request.data:
+            return create_error_response("Missing make")
+        if "model" not in request.data:
+            return create_error_response("Missing model")
+        if "vin" not in request.data:
+            return create_error_response("Missing VIN")
+
+        car = fetch_car(dealer=dealer, vin__iexact=request.data['vin'].lower())
+        if car is not None:
+            return create_error_response("This dealer already own a car with this VIN")
+
+        make = fetch_make(name__iexact=request.data['make'].lower())
+        if make is None:
+            make = Make(name=request.data['make'])
+            make.save()
+
+        model = fetch_model(name__iexact=request.data['model'].lower(), make=make)
+        if model is None:
+            model = Model(
+                name=request.data['model'],
+                make=make
+            )
+            model.save()
+
+        serializer = CarWriteSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(
+                dealer=dealer,
+                model=model
+            )
+
+            return Response({
+                'status': status.HTTP_200_OK,
+            })
+        else:
+            return create_error_response(serializer.error_messages)
 
 
 class car(APIView):
