@@ -7,6 +7,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'birkoss',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',  # nopep8
     },
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 LANGUAGE_CODE = 'en-ca'
 
