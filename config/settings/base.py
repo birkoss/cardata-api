@@ -11,6 +11,7 @@ INSTALLED_APPS = [
 
     'birkoss',
     'users',
+    'dealers',
 ]
 
 MIDDLEWARE = [
