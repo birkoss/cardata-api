@@ -24,3 +24,8 @@ def create_api_key(sender, instance=None, created=False, **kwargs):
     if created:
         instance.api_key = uuid.uuid1().hex
         instance.save()
+
+
+def fetch_dealer(**kwargs):
+    dealer = Dealer.objects.filter(**kwargs).first()
+    return dealer
