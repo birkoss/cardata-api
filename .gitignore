@@ -1,0 +1,12 @@
+*.sqlite3
+._*
+.DS_Store
+__pycache__/
+
+config/settings/dev.py
+config/settings/prod.py
+
+# Apache auto-generated file
+passenger_wsgi.py
+stderr.log
+tmp/
