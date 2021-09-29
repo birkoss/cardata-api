@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 from birkoss.models import TimeStampedModel, UUIDModel
 
@@ -30,5 +31,9 @@ def create_api_key(sender, instance=None, created=False, **kwargs):
 
 
 def fetch_dealer(**kwargs):
-    dealer = Dealer.objects.filter(**kwargs).first()
+    try:
+        dealer = Dealer.objects.filter(**kwargs).first()
+    except ValidationError:
+        return None
+
     return dealer

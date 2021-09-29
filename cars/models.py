@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 from birkoss.models import TimeStampedModel, UUIDModel
 
@@ -69,3 +70,12 @@ class Car(TimeStampedModel, UUIDModel, models.Model):
 
     def __str__(self):
         return self.model.__str__() + " " + self.trim + " " + self.year
+
+
+def fetch_car(**kwargs):
+    try:
+        car = Car.objects.filter(**kwargs).first()
+    except ValidationError:
+        return None
+
+    return car
