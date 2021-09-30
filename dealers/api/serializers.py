@@ -6,4 +6,4 @@ from ..models import Dealer
 class DealerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dealer
-        fields = ['id', 'name', 'address', 'city', 'postal_code', 'website', 'latitude', 'longitude', 'api_key']
+        fields = ['id', 'name', 'address', 'city', 'postal_code', 'website', 'latitude', 'longitude', 'api_key', 'feeds_url']

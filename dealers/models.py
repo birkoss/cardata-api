@@ -17,6 +17,7 @@ class Dealer(TimeStampedModel, UUIDModel, models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0, blank=True)
     api_key = models.CharField(max_length=32, default='', blank=True, unique=True)
+    feeds_url = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
