@@ -73,6 +73,25 @@ class cars(APIView):
             return create_error_response(serializer.error_messages)
 
 
+class cars_active(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, dealer_id, format=None):
+        dealer = fetch_dealer(id=dealer_id)
+        if dealer is None:
+            return create_error_response("Invalid dealer")
+
+        cars = Car.objects.filter(dealer=dealer,date_removed=None).order_by("trim")
+
+        serializer = CarSerializer(instance=cars, many=True)
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'cars': serializer.data
+        }, status=status.HTTP_200_OK)
+
+
 class car(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]

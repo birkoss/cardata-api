@@ -10,6 +10,11 @@ urlpatterns = [
         name='cars'
     ),
     path(
+        'dealer/<str:dealer_id>/cars/active',
+        api_views.cars_active.as_view(),
+        name='cars-active'
+    ),
+    path(
         'car/<str:car_id>',
         api_views.car.as_view(),
         name='car'
