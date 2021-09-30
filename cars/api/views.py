@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -88,4 +90,16 @@ class car(APIView):
         return Response({
             'status': status.HTTP_200_OK,
             'car': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    def delete(self, request, car_id, format=None):
+        car = fetch_car(id=car_id)
+        if car is None:
+            return create_error_response("Invalid car")
+
+        car.date_deleted = datetime.now()
+        car.save()
+
+        return Response({
+            'status': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
