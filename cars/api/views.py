@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from birkoss.helpers import create_error_response
-from dealers.models import Dealer, fetch_dealer
+from dealers.models import fetch_dealer
 from cars.models import Car, Make, Model, fetch_car, fetch_make, fetch_model
 
 from .serializers import CarSerializer, CarWriteSerializer
@@ -24,7 +24,7 @@ class cars(APIView):
 
         return Response({
             'status': status.HTTP_200_OK,
-            'dealers': serializer.data
+            'cars': serializer.data
         }, status=status.HTTP_200_OK)
 
     def post(self, request, dealer_id, format=None):
