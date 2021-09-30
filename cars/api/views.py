@@ -97,7 +97,7 @@ class car(APIView):
         if car is None:
             return create_error_response("Invalid car")
 
-        car.date_deleted = datetime.now()
+        car.date_removed = datetime.now()
         car.save()
 
         return Response({
