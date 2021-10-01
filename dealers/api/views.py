@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -40,4 +41,17 @@ class dealer(APIView):
         return Response({
             'status': status.HTTP_200_OK,
             'dealer': serializer.data
+        }, status=status.HTTP_200_OK)
+
+
+class stats_dealers(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        dealers = Dealer.objects.all()
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'total': dealers.count()
         }, status=status.HTTP_200_OK)

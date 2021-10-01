@@ -170,12 +170,12 @@ class stats_cars(APIView):
         _date_from = request.GET.get("date-from", "")
         if _date_from != "":
             if validate_date(_date_from):
-                filters.add(Q(date_added__gte=datetime.strptime(_date_from, '%Y-%m-%d')), Q.AND)
+                filters.add(Q(date_added__gte=datetime.strptime(_date_from, '%Y-%m-%d')), Q.AND)  # nopep8
 
         _date_to = request.GET.get("date-to", "")
         if _date_to != "":
             if validate_date(_date_to):
-                filters.add(Q(date_added__lte=datetime.strptime(_date_to, '%Y-%m-%d')), Q.AND)
+                filters.add(Q(date_added__lte=datetime.strptime(_date_to, '%Y-%m-%d')), Q.AND)  # nopep8
 
         cars = Car.objects.filter(filters)
 
