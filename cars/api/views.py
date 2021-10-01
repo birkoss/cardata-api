@@ -41,22 +41,42 @@ class cars(APIView):
         if "vin" not in request.data:
             return create_error_response("Missing VIN")
 
-        car = fetch_car(dealer=dealer, vin__iexact=request.data['vin'].lower())
+        # Active car with the same VIN
+        car = fetch_car(
+            dealer=dealer,
+            vin__iexact=request.data['vin'].lower(),
+            date_removed=None
+        )
         if car is not None:
-            return create_error_response("This dealer already own a car with this VIN")
+            return create_error_response("This dealer already own a car with this VIN")  # nopep8
 
         make = fetch_make(name__iexact=request.data['make'].lower())
         if make is None:
             make = Make(name=request.data['make'])
             make.save()
 
-        model = fetch_model(name__iexact=request.data['model'].lower(), make=make)
+        model = fetch_model(
+            name__iexact=request.data['model'].lower(),
+            make=make
+        )
         if model is None:
             model = Model(
                 name=request.data['model'],
                 make=make
             )
             model.save()
+
+        # Edge case, a car was REMOVED from inventory, and added back
+        car = fetch_car(
+            dealer=dealer,
+            vin__iexact=request.data['vin'].lower(),
+        )
+        if car is not None:
+            car.date_removed = None
+            car.save()
+            return Response({
+                'status': status.HTTP_200_OK,
+            })
 
         serializer = CarWriteSerializer(data=request.data)
 
