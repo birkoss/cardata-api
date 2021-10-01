@@ -15,7 +15,7 @@ urlpatterns = [
         name='dealer'
     ),
     path(
-        'dealers/cars',
+        'stats/dealers',
         api_views.stats_dealers.as_view(),
         name='dealers-cars'
     )
