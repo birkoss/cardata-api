@@ -1,10 +1,11 @@
 from datetime import datetime
 
+from django.db.models import Q
 from rest_framework import status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from birkoss.helpers import create_error_response
+from birkoss.helpers import create_error_response, validate_date
 from dealers.models import fetch_dealer
 from cars.models import Car, Make, Model, fetch_car, fetch_make, fetch_model
 
@@ -103,7 +104,10 @@ class cars_active(APIView):
         if dealer is None:
             return create_error_response("Invalid dealer")
 
-        cars = Car.objects.filter(dealer=dealer,date_removed=None).order_by("trim")
+        cars = Car.objects.filter(
+            dealer=dealer,
+            date_removed=None
+        ).order_by("trim")
 
         serializer = CarSerializer(instance=cars, many=True)
 
@@ -142,4 +146,40 @@ class car(APIView):
 
         return Response({
             'status': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
+
+class stats_cars(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+
+        filters = Q()
+
+        _condition = request.GET.get("condition", "")
+        if _condition == "used" or _condition == "new":
+            filters.add(Q(condition=_condition), Q.AND)
+
+        _status = request.GET.get("status", "")
+        if _status == "available":
+            filters.add(Q(date_removed=None), Q.AND)
+        elif _status == "sold":
+            filters.add(~Q(date_removed=None), Q.AND)
+
+        _date_from = request.GET.get("date-from", "")
+        if _date_from != "":
+            if validate_date(_date_from):
+                filters.add(Q(date_added__gte=datetime.strptime(_date_from, '%Y-%m-%d')), Q.AND)
+
+        _date_to = request.GET.get("date-to", "")
+        if _date_to != "":
+            if validate_date(_date_to):
+                filters.add(Q(date_added__lte=datetime.strptime(_date_to, '%Y-%m-%d')), Q.AND)
+
+        cars = Car.objects.filter(filters)
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'total': cars.count()
         }, status=status.HTTP_200_OK)

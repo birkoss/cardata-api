@@ -19,4 +19,9 @@ urlpatterns = [
         api_views.car.as_view(),
         name='car'
     ),
+    path(
+        'stats/cars',
+        api_views.stats_cars.as_view(),
+        name='stats-cars'
+    )
 ]
