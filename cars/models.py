@@ -36,7 +36,7 @@ class Car(TimeStampedModel, UUIDModel, models.Model):
         related_name="cars"
     )
 
-    trim = models.CharField(max_length=100, default='')
+    trim = models.CharField(max_length=100, default='', blank=True)
     year = models.CharField(max_length=6, default='')
     dealer = models.ForeignKey(
         'dealers.Dealer',
