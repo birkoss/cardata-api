@@ -43,12 +43,14 @@ class cars(APIView):
         if "vin" not in request.data:
             return create_error_response("Missing VIN")
 
-        # @TODO: Better handling, also use an associated table to prevent human errors and duplicates
-        request.data['make'] = request.data['make'].strip()
-        request.data['model'] = request.data['model'].strip()
+        data = request.data.copy()
 
-        if "special_price" in request.data and request.data['special_price'] == "":
-            request.data['special_price'] = 0
+        # @TODO: Better handling, also use an associated table to prevent human errors and duplicates
+        data['make'] = data['make'].strip()
+        data['model'] = data['model'].strip()
+
+        if "special_price" in data and data['special_price'] == "":
+            data['special_price'] = 0
 
         # Active car with the same VIN
         car = fetch_car(
@@ -87,7 +89,7 @@ class cars(APIView):
                 'status': status.HTTP_200_OK,
             })
 
-        serializer = CarWriteSerializer(data=request.data)
+        serializer = CarWriteSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save(
