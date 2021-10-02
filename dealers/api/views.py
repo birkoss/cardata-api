@@ -1,4 +1,5 @@
-from django.db.models import Q
+from django.db import connection
+from django.db.models import Q, Count, Case, When, IntegerField
 from rest_framework import status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,13 +15,30 @@ class dealers(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        dealers = Dealer.objects.all().order_by("name")
+        dealers = Dealer.objects.all().order_by("name").annotate(
+            cars_count=Count('dealers', distinct=True)
+        ).annotate(
+            active_cars_count=Count(
+                Case(
+                    When(dealers__date_removed=None, then=1),
+                    output_field=IntegerField(),
+                )
+            )
+        ).annotate(
+            sold_cars_count=Count(
+                Case(
+                    When(~Q(dealers__date_removed=None), then=1),
+                    output_field=IntegerField(),
+                )
+            )
+        )
 
         serializer = DealerSerializer(instance=dealers, many=True)
 
         return Response({
             'status': status.HTTP_200_OK,
-            'dealers': serializer.data
+            'dealers': serializer.data,
+            'queries': len(connection.queries),
         }, status=status.HTTP_200_OK)
 
 
