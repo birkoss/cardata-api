@@ -10,7 +10,7 @@ from birkoss.helpers import create_error_response, validate_date
 from dealers.models import fetch_dealer
 from cars.models import Car, Make, Model, fetch_car, fetch_make, fetch_model
 
-from .serializers import CarSerializer, CarWriteSerializer, MakeSerializer, ModelSerializer
+from .serializers import CarSerializer, CarWriteSerializer, MakeSerializer, ModelSerializer  # nopep8
 
 
 class cars(APIView):
@@ -42,6 +42,10 @@ class cars(APIView):
             return create_error_response("Missing model")
         if "vin" not in request.data:
             return create_error_response("Missing VIN")
+
+        # @TODO: Better handling, also use an associated table to prevent human errors and duplicates
+        request.data['make'] = request.data['make'].strip()
+        request.data['model'] = request.data['model'].strip()
 
         # Active car with the same VIN
         car = fetch_car(
