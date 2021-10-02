@@ -16,7 +16,7 @@ class dealers(APIView):
 
     def get(self, request, format=None):
         dealers = Dealer.objects.all().order_by("name").annotate(
-            cars_count=Count('dealers', distinct=True)
+            cars_count=Count('dealers')
         ).annotate(
             active_cars_count=Count(
                 Case(
