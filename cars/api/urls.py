@@ -23,5 +23,10 @@ urlpatterns = [
         'stats/cars',
         api_views.stats_cars.as_view(),
         name='stats-cars'
-    )
+    ),
+    path(
+        'makes',
+        api_views.makes.as_view(),
+        name='makes'
+    ),
 ]

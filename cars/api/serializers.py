@@ -83,3 +83,17 @@ class CarWriteSerializer(serializers.ModelSerializer):
             'fuel_type',
             'drivetrain',
         ]
+
+
+class MakeSerializer(serializers.ModelSerializer):
+    models_count = serializers.CharField()
+    cars_count = serializers.CharField()
+
+    class Meta:
+        model = Make
+        fields = [
+            'id',
+            'name',
+            'models_count',
+            'cars_count'
+        ]

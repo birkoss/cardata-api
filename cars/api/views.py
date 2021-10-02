@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from django.db.models import Q
+from django.db import connection
+from django.db.models import Q, Count
 from rest_framework import status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,7 +10,7 @@ from birkoss.helpers import create_error_response, validate_date
 from dealers.models import fetch_dealer
 from cars.models import Car, Make, Model, fetch_car, fetch_make, fetch_model
 
-from .serializers import CarSerializer, CarWriteSerializer
+from .serializers import CarSerializer, CarWriteSerializer, MakeSerializer
 
 
 class cars(APIView):
@@ -192,4 +193,22 @@ class stats_cars(APIView):
         return Response({
             'status': status.HTTP_200_OK,
             'total': cars.count()
+        }, status=status.HTTP_200_OK)
+
+
+class makes(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        makes = Make.objects.all().order_by("name").annotate(
+            models_count=Count('models', distinct=True),
+            cars_count=Count('models__cars', distinct=True)
+        )
+        serializer = MakeSerializer(instance=makes, many=True)
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'makes': serializer.data,
+            'queries': len(connection.queries),
         }, status=status.HTTP_200_OK)
