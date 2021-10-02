@@ -14,9 +14,9 @@ class Dealer(TimeStampedModel, UUIDModel, models.Model):
     city = models.CharField(max_length=200, default='')
     postal_code = models.CharField(max_length=6, default='')
     website = models.CharField(max_length=200, default='', blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0, blank=True)
-    api_key = models.CharField(max_length=32, default='', blank=True, unique=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0, blank=True)  # nopep8
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0, blank=True)  # nopep8
+    api_key = models.CharField(max_length=32, default='', blank=True, unique=True)  # nopep8
     feeds_url = models.TextField(blank=True)
 
     def __str__(self):

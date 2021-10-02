@@ -56,12 +56,12 @@ class CarWriteSerializer(serializers.ModelSerializer):
     model = serializers.CharField(source="model.name", read_only=True)
     make = serializers.CharField(source="model.make.name", read_only=True)
 
-    exterior_color = serializers.CharField(source='raw_exterior_color', allow_blank=True)
-    interior_color = serializers.CharField(source='raw_interior_color', allow_blank=True)
-    body_style = serializers.CharField(source='raw_body_style', allow_blank=True)
-    transmission = serializers.CharField(source='raw_transmission', allow_blank=True)
-    fuel_type = serializers.CharField(source='raw_fuel_type', allow_blank=True)
-    drivetrain = serializers.CharField(source='raw_drivetrain', allow_blank=True)
+    exterior_color = serializers.CharField(source='raw_exterior_color', allow_blank=True)  # nopep8
+    interior_color = serializers.CharField(source='raw_interior_color', allow_blank=True)  # nopep8
+    body_style = serializers.CharField(source='raw_body_style', allow_blank=True)  # nopep8
+    transmission = serializers.CharField(source='raw_transmission', allow_blank=True)  # nopep8
+    fuel_type = serializers.CharField(source='raw_fuel_type', allow_blank=True)  # nopep8
+    drivetrain = serializers.CharField(source='raw_drivetrain', allow_blank=True)  # nopep8
 
     class Meta:
         model = Car

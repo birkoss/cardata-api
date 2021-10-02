@@ -42,7 +42,7 @@ class Car(TimeStampedModel, UUIDModel, models.Model):
         related_name="dealers"
     )
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    special_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True)
+    special_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True)  # nopep8
 
     vin = models.CharField(max_length=20, default='')
 
@@ -61,8 +61,8 @@ class Car(TimeStampedModel, UUIDModel, models.Model):
         default=CarCondition.USED,
     )
 
-    raw_exterior_color = models.CharField(max_length=100, default='', blank=True)
-    raw_interior_color = models.CharField(max_length=100, default='', blank=True)
+    raw_exterior_color = models.CharField(max_length=100, default='', blank=True)  # nopep8
+    raw_interior_color = models.CharField(max_length=100, default='', blank=True)  # nopep8
     raw_body_style = models.CharField(max_length=100, default='', blank=True)
     raw_transmission = models.CharField(max_length=100, default='', blank=True)
     raw_fuel_type = models.CharField(max_length=100, default='', blank=True)
