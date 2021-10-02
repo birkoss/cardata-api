@@ -47,6 +47,9 @@ class cars(APIView):
         request.data['make'] = request.data['make'].strip()
         request.data['model'] = request.data['model'].strip()
 
+        if "special_price" in request.data and request.data['special_price'] == "":
+            request.data['special_price'] = 0
+
         # Active car with the same VIN
         car = fetch_car(
             dealer=dealer,
@@ -97,6 +100,7 @@ class cars(APIView):
             })
         else:
             # @TODO: Use serializer.errors
+            print(serializer.errors)
             return create_error_response(serializer.error_messages)
 
 
