@@ -1,5 +1,5 @@
 from django.db import connection
-from django.db.models import Q, Count, Case, When, IntegerField
+from django.db.models import Q, Count, Case, When, IntegerField, Sum
 from rest_framework import status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,7 +20,7 @@ class dealers(APIView):
         ).annotate(
             active_cars_count=Count(
                 Case(
-                    When(dealers__date_removed=None, then=1),
+                    When(Q(dealers__date_removed=None, dealers__isnull=False), then=1),
                     output_field=IntegerField(),
                 )
             )
