@@ -97,3 +97,26 @@ class MakeSerializer(serializers.ModelSerializer):
             'models_count',
             'cars_count'
         ]
+
+
+class MakeSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Make
+        fields = [
+            'id',
+            'name',
+        ]
+
+
+class ModelSerializer(serializers.ModelSerializer):
+    make = MakeSimpleSerializer(read_only=True)
+    cars_count = serializers.CharField()
+
+    class Meta:
+        model = Model
+        fields = [
+            'id',
+            'name',
+            'make',
+            'cars_count'
+        ]

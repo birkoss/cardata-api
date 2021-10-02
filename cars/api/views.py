@@ -10,7 +10,7 @@ from birkoss.helpers import create_error_response, validate_date
 from dealers.models import fetch_dealer
 from cars.models import Car, Make, Model, fetch_car, fetch_make, fetch_model
 
-from .serializers import CarSerializer, CarWriteSerializer, MakeSerializer
+from .serializers import CarSerializer, CarWriteSerializer, MakeSerializer, ModelSerializer
 
 
 class cars(APIView):
@@ -210,5 +210,26 @@ class makes(APIView):
         return Response({
             'status': status.HTTP_200_OK,
             'makes': serializer.data,
+            'queries': len(connection.queries),
+        }, status=status.HTTP_200_OK)
+
+
+class models(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, make_id, format=None):
+        make = fetch_make(id=make_id)
+        if make is None:
+            return create_error_response("Invalid Make")
+
+        models = Model.objects.filter(make=make).order_by("name").annotate(
+            cars_count=Count('cars', distinct=True)
+        )
+        serializer = ModelSerializer(instance=models, many=True)
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'models': serializer.data,
             'queries': len(connection.queries),
         }, status=status.HTTP_200_OK)

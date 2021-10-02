@@ -29,4 +29,9 @@ urlpatterns = [
         api_views.makes.as_view(),
         name='makes'
     ),
+    path(
+        'make/<str:make_id>/models',
+        api_views.models.as_view(),
+        name='makes-models'
+    ),
 ]
