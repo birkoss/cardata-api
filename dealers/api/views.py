@@ -20,7 +20,10 @@ class dealers(APIView):
         ).annotate(
             active_cars_count=Count(
                 Case(
-                    When(Q(dealers__date_removed=None, dealers__isnull=False), then=1),
+                    When(
+                        Q(dealers__date_removed=None, dealers__isnull=False),
+                        then=1
+                    ),
                     output_field=IntegerField(),
                 )
             )

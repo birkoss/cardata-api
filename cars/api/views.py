@@ -45,7 +45,7 @@ class cars(APIView):
 
         data = request.data.copy()
 
-        # @TODO: Better handling, also use an associated table to prevent human errors and duplicates
+        # @TODO: Better handling, also use an associated table to prevent human errors and duplicates  # nopep8
         data['make'] = data['make'].strip()
         data['model'] = data['model'].strip()
 
