@@ -13,6 +13,13 @@ def create_error_response(message):
     }, status=status.HTTP_400_BAD_REQUEST)
 
 
+def create_error_message(errors):
+    message = "Error with "
+    for error in errors:
+        message += error + ", "
+    return message.strip(", ")
+
+
 def validate_date(date_text):
     try:
         datetime.datetime.strptime(date_text, '%Y-%m-%d')

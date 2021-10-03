@@ -6,11 +6,11 @@ from rest_framework import status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from birkoss.helpers import create_error_response, validate_date
+from birkoss.helpers import create_error_response, validate_date, create_error_message  # nopep8
 from dealers.models import fetch_dealer
-from cars.models import Car, Make, Model, fetch_car, fetch_make, fetch_model
+from cars.models import Car, CarHistory, Make, Model, fetch_car, fetch_make, fetch_model  # nopep8
 
-from .serializers import CarSerializer, CarWriteSerializer, MakeSerializer, ModelSerializer  # nopep8
+from .serializers import CarSerializer, CarWriteSerializer, CarPatchSerializer, MakeSerializer, ModelSerializer  # nopep8
 
 
 class cars(APIView):
@@ -158,6 +158,44 @@ class car(APIView):
         return Response({
             'status': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
+
+    def patch(self, request, car_id, format=None):
+        car = fetch_car(id=car_id)
+        if car is None:
+            return create_error_response("Invalid Car")
+
+        serializer = CarPatchSerializer(data=request.data)
+
+        if serializer.is_valid():
+            changed_fields = []
+
+            # Verify the car has change
+            for field in serializer.data:
+                if getattr(car, field) != serializer.data[field]:
+                    changed_fields.append(field)
+            if len(changed_fields) == 0:
+                return Response({
+                    'status': status.HTTP_304_NOT_MODIFIED,
+                })
+
+            # Save the history
+            for field in changed_fields:
+                history = CarHistory(
+                    car=car,
+                    field=field,
+                    value=getattr(car, field)
+                )
+                history.save()
+
+            # Update the car
+            serializer.update(car, serializer.data)
+            return Response({
+                'status': status.HTTP_200_OK,
+            })
+
+        return create_error_response(
+            create_error_message(serializer.errors)
+        )
 
 
 class stats_cars(APIView):

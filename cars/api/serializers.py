@@ -85,6 +85,19 @@ class CarWriteSerializer(serializers.ModelSerializer):
         ]
 
 
+class CarPatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Car
+        fields = [
+            'year',
+            'price',
+            'special_price',
+            'vin',
+            'mileage',
+            'images_count',
+        ]
+
+
 class MakeSerializer(serializers.ModelSerializer):
     models_count = serializers.CharField()
     cars_count = serializers.CharField()

@@ -75,6 +75,28 @@ class Car(TimeStampedModel, UUIDModel, models.Model):
         return self.model.__str__() + " " + self.trim + " " + self.year
 
 
+class CarHistory(TimeStampedModel, UUIDModel, models.Model):
+    car = models.ForeignKey(
+        'Car',
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="histories"
+    )
+
+    field = models.CharField(
+        max_length=40,
+        null=False,
+        blank=False,
+        default=''
+    )
+    value = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        default=''
+    )
+
+
 def fetch_car(**kwargs):
     try:
         car = Car.objects.filter(**kwargs).first()
