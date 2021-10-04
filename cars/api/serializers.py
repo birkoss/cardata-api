@@ -143,6 +143,7 @@ class HistorySerializer(serializers.ModelSerializer):
         model = CarHistory
         fields = [
             'id',
+            'date_added',
             'car',
             'field',
             'value',
