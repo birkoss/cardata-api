@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import Car, Model, Make
+from ..models import Car, CarHistory, Model, Make
 
 
 class MakeSerializer(serializers.ModelSerializer):
@@ -132,4 +132,19 @@ class ModelSerializer(serializers.ModelSerializer):
             'name',
             'make',
             'cars_count'
+        ]
+
+
+class HistorySerializer(serializers.ModelSerializer):
+    car = CarSerializer(read_only=True)
+    histories_count = serializers.CharField()
+
+    class Meta:
+        model = CarHistory
+        fields = [
+            'id',
+            'car',
+            'field',
+            'value',
+            'histories_count'
         ]

@@ -34,4 +34,9 @@ urlpatterns = [
         api_views.models.as_view(),
         name='makes-models'
     ),
+    path(
+        'histories',
+        api_views.histories.as_view(),
+        name='histories'
+    ),
 ]

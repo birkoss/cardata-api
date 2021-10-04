@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.db import connection
 from django.db.models import Q, Count
-from rest_framework import status, authentication, permissions
+from rest_framework import serializers, status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,7 +10,7 @@ from birkoss.helpers import create_error_response, validate_date, create_error_m
 from dealers.models import fetch_dealer
 from cars.models import Car, CarHistory, Make, Model, fetch_car, fetch_make, fetch_model  # nopep8
 
-from .serializers import CarSerializer, CarWriteSerializer, CarPatchSerializer, MakeSerializer, ModelSerializer  # nopep8
+from .serializers import CarSerializer, CarWriteSerializer, CarPatchSerializer, HistorySerializer, MakeSerializer, ModelSerializer  # nopep8
 
 
 class cars(APIView):
@@ -279,5 +279,22 @@ class models(APIView):
         return Response({
             'status': status.HTTP_200_OK,
             'models': serializer.data,
+            'queries': len(connection.queries),
+        }, status=status.HTTP_200_OK)
+
+
+class histories(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        histories = CarHistory.objects.all().select_related("car").annotate(
+            histories_count=Count("car__histories")
+        ).select_related("car__model").select_related("car__model__make").order_by("-date_added")
+        serializer = HistorySerializer(instance=histories, many=True)
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'histories': serializer.data,
             'queries': len(connection.queries),
         }, status=status.HTTP_200_OK)
