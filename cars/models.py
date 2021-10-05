@@ -71,6 +71,8 @@ class Car(TimeStampedModel, UUIDModel, models.Model):
     raw_fuel_type = models.CharField(max_length=100, default='', blank=True)
     raw_drivetrain = models.CharField(max_length=100, default='', blank=True)
 
+    sold_days_count = models.IntegerField(default=0, blank=True)
+
     def __str__(self):
         return self.model.__str__() + " " + self.trim + " " + self.year
 

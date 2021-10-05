@@ -156,6 +156,7 @@ class car(APIView):
             return create_error_response("Invalid car")
 
         car.date_removed = datetime.now()
+        car.sold_days_count = (car.date_removed.date() - car.date_added.date()).days
         car.save()
 
         return Response({
@@ -308,16 +309,22 @@ class sales(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        sales = Car.objects.filter(~Q(date_removed=None)).annotate(
-            # date_diff=(F('date_removed')-F('date_added') )
-            date_sold = ExpressionWrapper(F('date_removed') - F('date_added'), output_field=DurationField())
-            # date_diff=(F('date_removed')-F('date_added'))
-            # date_diff=RawSQL('date_diff(date_removed, date_added)', ())
-        )
-        serializer = SaleSerializer(instance=sales, many=True)
+        cars = Car.objects.filter(~Q(date_removed=None))
+        for car in cars:
+            car.sold_days_count = (car.date_removed.date() - car.date_added.date()).days
+            car.save()
+
+        
+        # .annotate(
+        #     # date_diff=(F('date_removed')-F('date_added') )
+        #     date_sold = ExpressionWrapper(F('date_removed') - F('date_added'), output_field=DurationField())
+        #     # date_diff=(F('date_removed')-F('date_added'))
+        #     # date_diff=RawSQL('date_diff(date_removed, date_added)', ())
+        # ).values("date_sold__days")
+        # serializer = SaleSerializer(instance=sales, many=True)
 
         return Response({
             'status': status.HTTP_200_OK,
-            'sales': serializer.data,
+            'sales': [],
             'queries': len(connection.queries),
         }, status=status.HTTP_200_OK)
