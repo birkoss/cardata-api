@@ -1,8 +1,11 @@
 from datetime import datetime
 
 from django.db import connection
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F, ExpressionWrapper
+from django.db.models.expressions import RawSQL
 from rest_framework import serializers, status, authentication, permissions
+from django.db.models.fields import DateTimeField, DurationField, BooleanField
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,7 +13,7 @@ from birkoss.helpers import create_error_response, validate_date, create_error_m
 from dealers.models import fetch_dealer
 from cars.models import Car, CarHistory, Make, Model, fetch_car, fetch_make, fetch_model  # nopep8
 
-from .serializers import CarSerializer, CarWriteSerializer, CarPatchSerializer, HistorySerializer, MakeSerializer, ModelSerializer  # nopep8
+from .serializers import CarSerializer, CarWriteSerializer, CarPatchSerializer, HistorySerializer, MakeSerializer, ModelSerializer, SaleSerializer  # nopep8
 
 
 class cars(APIView):
@@ -290,11 +293,31 @@ class histories(APIView):
     def get(self, request, format=None):
         histories = CarHistory.objects.all().select_related("car").annotate(
             histories_count=Count("car__histories")
-        ).select_related("car__model").select_related("car__model__make").order_by("-date_added")
+        ).select_related("car__model").select_related("car__model__make").order_by("-date_added")  # nopep8
         serializer = HistorySerializer(instance=histories, many=True)
 
         return Response({
             'status': status.HTTP_200_OK,
             'histories': serializer.data,
+            'queries': len(connection.queries),
+        }, status=status.HTTP_200_OK)
+
+
+class sales(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        sales = Car.objects.filter(~Q(date_removed=None)).annotate(
+            # date_diff=(F('date_removed')-F('date_added') )
+            date_sold = ExpressionWrapper(F('date_removed') - F('date_added'), output_field=DurationField())
+            # date_diff=(F('date_removed')-F('date_added'))
+            # date_diff=RawSQL('date_diff(date_removed, date_added)', ())
+        )
+        serializer = SaleSerializer(instance=sales, many=True)
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'sales': serializer.data,
             'queries': len(connection.queries),
         }, status=status.HTTP_200_OK)

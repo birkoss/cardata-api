@@ -149,3 +149,13 @@ class HistorySerializer(serializers.ModelSerializer):
             'value',
             'histories_count'
         ]
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    days = serializers.CharField(source="date_sold.days", read_only=True)
+
+    class Meta:
+        model = Car
+        fields = [
+            'days',
+        ]

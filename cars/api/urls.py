@@ -39,4 +39,9 @@ urlpatterns = [
         api_views.histories.as_view(),
         name='histories'
     ),
+    path(
+        'sales',
+        api_views.sales.as_view(),
+        name='sales'
+    ),
 ]
