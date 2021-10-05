@@ -311,7 +311,7 @@ class sales(APIView):
     def get(self, request, format=None):
         cars = Car.objects.filter(~Q(date_removed=None)).values("sold_days_count").annotate(
             cars_count=Count("sold_days_count")
-        ).order_by()
+        ).order_by("sold_days_count")
 
         serializer = SaleSerializer(instance=cars, many=True)
 
