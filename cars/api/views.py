@@ -171,7 +171,7 @@ class car(APIView):
 
             # Verify the car has change
             for field in serializer.data:
-                if str(getattr(car, field)) != serializer.data[field]:
+                if str(getattr(car, field)) != str(serializer.data[field]):
                     changed_fields.append(field)
             if len(changed_fields) == 0:
                 return Response({
