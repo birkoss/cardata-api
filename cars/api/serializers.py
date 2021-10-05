@@ -152,10 +152,11 @@ class HistorySerializer(serializers.ModelSerializer):
 
 
 class SaleSerializer(serializers.ModelSerializer):
-    days = serializers.CharField(source="date_sold.days", read_only=True)
+    cars_count = serializers.CharField()
 
     class Meta:
         model = Car
         fields = [
-            'days',
+            'cars_count',
+            'sold_days_count'
         ]

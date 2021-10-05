@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.db import connection
-from django.db.models import Q, Count, F, ExpressionWrapper
+from django.db.models import Q, Count, F, ExpressionWrapper, Sum
 from django.db.models.expressions import RawSQL
 from rest_framework import serializers, status, authentication, permissions
 from django.db.models.fields import DateTimeField, DurationField, BooleanField
@@ -309,22 +309,14 @@ class sales(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        cars = Car.objects.filter(~Q(date_removed=None))
-        for car in cars:
-            car.sold_days_count = (car.date_removed.date() - car.date_added.date()).days
-            car.save()
+        cars = Car.objects.filter(~Q(date_removed=None)).values("sold_days_count").annotate(
+            cars_count=Count("sold_days_count")
+        ).order_by()
 
-        
-        # .annotate(
-        #     # date_diff=(F('date_removed')-F('date_added') )
-        #     date_sold = ExpressionWrapper(F('date_removed') - F('date_added'), output_field=DurationField())
-        #     # date_diff=(F('date_removed')-F('date_added'))
-        #     # date_diff=RawSQL('date_diff(date_removed, date_added)', ())
-        # ).values("date_sold__days")
-        # serializer = SaleSerializer(instance=sales, many=True)
+        serializer = SaleSerializer(instance=cars, many=True)
 
         return Response({
             'status': status.HTTP_200_OK,
-            'sales': [],
+            'sales': serializer.data,
             'queries': len(connection.queries),
         }, status=status.HTTP_200_OK)
