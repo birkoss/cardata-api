@@ -20,6 +20,21 @@ class cars(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, format=None):
+        cars = Car.objects.all().order_by("trim")
+
+        serializer = CarSerializer(instance=cars, many=True)
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'cars': serializer.data
+        }, status=status.HTTP_200_OK)
+
+
+class dealer_cars(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request, dealer_id, format=None):
         dealer = fetch_dealer(id=dealer_id)
         if dealer is None:

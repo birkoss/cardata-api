@@ -6,13 +6,18 @@ from . import views as api_views
 urlpatterns = [
     path(
         'dealer/<str:dealer_id>/cars',
-        api_views.cars.as_view(),
-        name='cars'
+        api_views.dealer_cars.as_view(),
+        name='dealer-cars'
     ),
     path(
         'dealer/<str:dealer_id>/cars/active',
         api_views.cars_active.as_view(),
         name='cars-active'
+    ),
+    path(
+        'cars',
+        api_views.cars.as_view(),
+        name='cars'
     ),
     path(
         'car/<str:car_id>',
