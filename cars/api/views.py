@@ -21,7 +21,7 @@ class cars(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        cars = Car.objects.all().order_by("trim").select_related("model").select_related("model__make")
+        cars = Car.objects.all().order_by("-date_added").select_related("model").select_related("model__make")
 
         serializer = CarQuerySerializer(instance=cars, many=True)
 
