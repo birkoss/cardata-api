@@ -27,7 +27,8 @@ class cars(APIView):
 
         return Response({
             'status': status.HTTP_200_OK,
-            'cars': serializer.data
+            'cars': serializer.data,
+            'queries': len(connection.queries),
         }, status=status.HTTP_200_OK)
 
 
