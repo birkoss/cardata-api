@@ -18,6 +18,41 @@ class ModelSerializer(serializers.ModelSerializer):
         fields = ['name', 'make']
 
 
+class CarQuerySerializer(serializers.ModelSerializer):
+    model = serializers.CharField(source="model.name", read_only=True)
+    make = serializers.CharField(source="model.make.name", read_only=True)
+
+    exterior_color = serializers.CharField(source='raw_exterior_color')
+    interior_color = serializers.CharField(source='raw_interior_color')
+    body_style = serializers.CharField(source='raw_body_style')
+    transmission = serializers.CharField(source='raw_transmission')
+    fuel_type = serializers.CharField(source='raw_fuel_type')
+    drivetrain = serializers.CharField(source='raw_drivetrain')
+
+    class Meta:
+        model = Car
+        fields = [
+            'id',
+            'date_added',
+            'make',
+            'model',
+            'trim',
+            'year',
+            'price',
+            'special_price',
+            'vin',
+            'mileage',
+            'images_count',
+            'condition',
+            'exterior_color',
+            'interior_color',
+            'body_style',
+            'transmission',
+            'fuel_type',
+            'drivetrain',
+        ]
+
+
 class CarSerializer(serializers.ModelSerializer):
     model = serializers.CharField(source="model.name", read_only=True)
     make = serializers.CharField(source="model.make.name", read_only=True)

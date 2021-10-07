@@ -13,7 +13,7 @@ from birkoss.helpers import create_error_response, validate_date, create_error_m
 from dealers.models import fetch_dealer
 from cars.models import Car, CarHistory, Make, Model, fetch_car, fetch_make, fetch_model  # nopep8
 
-from .serializers import CarSerializer, CarWriteSerializer, CarPatchSerializer, HistorySerializer, MakeSerializer, ModelSerializer, SaleSerializer  # nopep8
+from .serializers import CarSerializer, CarQuerySerializer, CarWriteSerializer, CarPatchSerializer, HistorySerializer, MakeSerializer, ModelSerializer, SaleSerializer  # nopep8
 
 
 class cars(APIView):
@@ -23,7 +23,7 @@ class cars(APIView):
     def get(self, request, format=None):
         cars = Car.objects.all().order_by("trim").select_related("model").select_related("model__make")
 
-        serializer = CarSerializer(instance=cars, many=True)
+        serializer = CarQuerySerializer(instance=cars, many=True)
 
         return Response({
             'status': status.HTTP_200_OK,
