@@ -41,7 +41,7 @@ class cars(APIView):
         page = 1
         _page = request.GET.get("page", 1)
         if _page is not None or _page.isnumeric():
-            # @TODO: Warn when over or under the page limit
+            # @TODO: Warn when over or under the page limitx
             page = max(1, int(_page))
 
         serializer = CarQuerySerializer(instance=cars[(page - 1) * limit: page * limit], many=True)
@@ -305,7 +305,7 @@ class makes(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class models(APIView):
+class makes_models(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
@@ -315,6 +315,32 @@ class models(APIView):
             return create_error_response("Invalid Make")
 
         models = Model.objects.filter(make=make).order_by("name").annotate(
+            cars_count=Count('cars', distinct=True)
+        )
+        serializer = ModelSerializer(instance=models, many=True)
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'models': serializer.data,
+            'queries': len(connection.queries),
+        }, status=status.HTTP_200_OK)
+
+
+class models(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        filters = Q()
+
+        makes = request.GET.getlist("makes[]", [])
+        if len(makes) > 0:
+            subfilters = Q()
+            for make in makes:
+                subfilters.add(Q(make_id=make), Q.OR)
+            filters.add(subfilters, Q.AND)
+
+        models = Model.objects.filter(filters).order_by("name").annotate(
             cars_count=Count('cars', distinct=True)
         )
         serializer = ModelSerializer(instance=models, many=True)
