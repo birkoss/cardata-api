@@ -342,6 +342,13 @@ class models(APIView):
     def get(self, request, format=None):
         filters = Q()
 
+        dealers = request.GET.getlist("dealers[]", [])
+        if len(dealers) > 0:
+            subfilters = Q()
+            for dealer in dealers:
+                subfilters.add(Q(cars__dealer_id=dealer), Q.OR)
+            filters.add(subfilters, Q.AND)
+
         makes = request.GET.getlist("makes[]", [])
         if len(makes) > 0:
             subfilters = Q()
