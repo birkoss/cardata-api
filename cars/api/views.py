@@ -292,7 +292,16 @@ class makes(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        makes = Make.objects.all().order_by("name").annotate(
+        filters = Q()
+
+        dealers = request.GET.getlist("dealers[]", [])
+        if len(dealers) > 0:
+            subfilters = Q()
+            for dealer in dealers:
+                subfilters.add(Q(models__cars__dealer_id=dealer), Q.OR)
+            filters.add(subfilters, Q.AND)
+
+        makes = Make.objects.filter(filters).order_by("name").annotate(
             models_count=Count('models', distinct=True),
             cars_count=Count('models__cars', distinct=True)
         )
