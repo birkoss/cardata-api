@@ -7,6 +7,7 @@ class DealerSerializer(serializers.ModelSerializer):
     cars_count = serializers.CharField()
     active_cars_count = serializers.CharField()
     sold_cars_count = serializers.CharField()
+    makes_count = serializers.CharField()
 
     class Meta:
         model = Dealer
@@ -24,4 +25,5 @@ class DealerSerializer(serializers.ModelSerializer):
             'cars_count',
             'active_cars_count',
             'sold_cars_count',
+            'makes_count'
         ]
