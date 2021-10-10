@@ -1,4 +1,5 @@
 from datetime import datetime
+import math
 
 from django.db import connection
 from django.db.models import Q, Count, F, ExpressionWrapper, Sum
@@ -21,14 +22,36 @@ class cars(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        cars = Car.objects.all().order_by("-date_added").select_related("model").select_related("model__make")
+        filters = Q()
 
-        serializer = CarQuerySerializer(instance=cars, many=True)
+        cars = Car.objects.filter(
+            filters
+        ).order_by(
+            "-date_added"
+        ).select_related("model").select_related("model__make")
+
+        total_cars = len(cars)
+
+        limit = 5
+        _limit = request.GET.get("limit", 5)
+        if _limit is not None or _limit.isnumeric():
+            # @TODO: Warn when over or under the limit
+            limit = min(100, max(5, int(_limit)))
+
+        page = 1
+        _page = request.GET.get("page", 1)
+        if _page is not None or _page.isnumeric():
+            # @TODO: Warn when over or under the page limit
+            page = max(1, int(_page))
+
+        serializer = CarQuerySerializer(instance=cars[(page - 1) * limit: page * limit], many=True)
 
         return Response({
             'status': status.HTTP_200_OK,
             'cars': serializer.data,
             'queries': len(connection.queries),
+            'cars_count': total_cars,
+            'pages_count': math.ceil(total_cars / limit)
         }, status=status.HTTP_200_OK)
 
 
