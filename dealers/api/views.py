@@ -18,7 +18,7 @@ class dealers(APIView):
         dealers = Dealer.objects.all().order_by("name").annotate(
             cars_count=Count('dealers')
         ).annotate(
-            makes_count=Count('dealers__model__make')
+            makes_count=Count('dealers__model__make', distinct=True)
         ).annotate(
             active_cars_count=Count(
                 Case(
