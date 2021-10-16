@@ -348,7 +348,7 @@ class stats_weekly_cars(APIView):
                     )
 
         else:
-            filters.add(Q(date_removed=None), Q.AND)
+            # filters.add(Q(date_removed=None), Q.AND)
             weekday['weekday'] = ExtractWeekDay('date_added')
 
             if _date_to != "":
