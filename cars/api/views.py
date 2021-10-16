@@ -2,11 +2,10 @@ from datetime import datetime
 import math
 
 from django.db import connection
-from django.db.models import Q, Count, F, ExpressionWrapper, Sum
-from django.db.models.expressions import RawSQL
-from rest_framework import serializers, status, authentication, permissions
-from django.db.models.fields import DateTimeField, DurationField, BooleanField
+from django.db.models import Q, Count
+from django.db.models.functions import ExtractWeekDay
 
+from rest_framework import status, authentication, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -44,7 +43,10 @@ class cars(APIView):
             # @TODO: Warn when over or under the page limitx
             page = max(1, int(_page))
 
-        serializer = CarQuerySerializer(instance=cars[(page - 1) * limit: page * limit], many=True)
+        serializer = CarQuerySerializer(
+            instance=cars[(page - 1) * limit: page * limit],
+            many=True
+        )
 
         return Response({
             'status': status.HTTP_200_OK,
@@ -195,7 +197,9 @@ class car(APIView):
             return create_error_response("Invalid car")
 
         car.date_removed = datetime.now()
-        car.sold_days_count = (car.date_removed.date() - car.date_added.date()).days
+        car.sold_days_count = (
+            car.date_removed.date() - car.date_added.date()
+        ).days
         car.save()
 
         return Response({
@@ -284,6 +288,97 @@ class stats_cars(APIView):
         return Response({
             'status': status.HTTP_200_OK,
             'total': cars.count()
+        }, status=status.HTTP_200_OK)
+
+
+class stats_weekly_cars(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+
+        filters = Q()
+
+        _condition = request.GET.get("condition", "")
+        if _condition == "used" or _condition == "new":
+            filters.add(Q(condition=_condition), Q.AND)
+
+        weekday = {}
+
+        _date_from = request.GET.get("date-from", "")
+        _date_to = request.GET.get("date-to", "")
+
+        _status = request.GET.get("status", "sold")
+        if _status == "sold":
+            filters.add(~Q(date_removed=None), Q.AND)
+            weekday['weekday'] = ExtractWeekDay('date_removed')
+
+            if _date_to != "":
+                if validate_date(_date_to):
+                    filters.add(
+                        Q(
+                            date_removed__date__lte=datetime.strptime(
+                                _date_to,
+                                '%Y-%m-%d'
+                            )
+                        ),
+                        Q.AND
+                    )
+            if _date_from != "":
+                if validate_date(_date_from):
+                    filters.add(
+                        Q(
+                            date_removed__date__gte=datetime.strptime(
+                                _date_from,
+                                '%Y-%m-%d'
+                            )
+                        ),
+                        Q.AND
+                    )
+
+        else:
+            filters.add(Q(date_removed=None), Q.AND)
+            weekday['weekday'] = ExtractWeekDay('date_added')
+
+            if _date_to != "":
+                if validate_date(_date_to):
+                    filters.add(
+                        Q(
+                            date_added__date__lte=datetime.strptime(
+                                _date_to,
+                                '%Y-%m-%d'
+                            )
+                        ),
+                        Q.AND
+                    )
+            if _date_from != "":
+                if validate_date(_date_from):
+                    filters.add(
+                        Q(
+                            date_added__date__gte=datetime.strptime(
+                                _date_from,
+                                '%Y-%m-%d'
+                            )
+                        ),
+                        Q.AND
+                    )
+
+        cars = Car.objects.filter(
+            filters
+        ).annotate(
+            **weekday
+        ).values(
+            "weekday"
+        ).annotate(
+            cars_count=Count("id")
+        ).values(
+            "weekday",
+            "cars_count"
+        )
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'total': cars,
         }, status=status.HTTP_200_OK)
 
 
@@ -390,9 +485,15 @@ class sales(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        cars = Car.objects.filter(~Q(date_removed=None)).values("sold_days_count").annotate(
+        cars = Car.objects.filter(
+            ~Q(date_removed=None)
+        ).values(
+            "sold_days_count"
+        ).annotate(
             cars_count=Count("sold_days_count")
-        ).order_by("sold_days_count")
+        ).order_by(
+            "sold_days_count"
+        )
 
         serializer = SaleSerializer(instance=cars, many=True)
 
