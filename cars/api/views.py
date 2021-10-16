@@ -374,6 +374,8 @@ class stats_weekly_cars(APIView):
         ).values(
             "weekday",
             "cars_count"
+        ).order_by(
+            "weekday"
         )
 
         return Response({
