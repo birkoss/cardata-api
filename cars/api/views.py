@@ -299,6 +299,17 @@ class stats_weekly_cars(APIView):
 
         filters = Q()
 
+        # Exclude the first day (+2000 cars)
+        filters.add(
+            ~Q(
+                date_added=datetime.strptime(
+                    "2021-09-30",
+                    '%Y-%m-%d'
+                )
+            ),
+            Q.AND
+        )
+
         _condition = request.GET.get("condition", "")
         if _condition == "used" or _condition == "new":
             filters.add(Q(condition=_condition), Q.AND)
