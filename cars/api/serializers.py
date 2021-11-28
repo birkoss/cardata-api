@@ -140,7 +140,7 @@ class CarExportSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
 
     def get_age(self, obj):
-        return datetime.now().year - int(obj.year)
+        return (datetime.now().year + 1) - int(obj.year)
 
     class Meta:
         model = Car
