@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 
 from ..models import Car, CarHistory, Model, Make
@@ -130,6 +131,26 @@ class CarPatchSerializer(serializers.ModelSerializer):
             'vin',
             'mileage',
             'images_count',
+        ]
+
+
+class CarExportSerializer(serializers.ModelSerializer):
+    model = serializers.CharField(source="model.name", read_only=True)
+    make = serializers.CharField(source="model.make.name", read_only=True)
+    age = serializers.SerializerMethodField()
+
+    def get_age(self, obj):
+        return datetime.now().year - int(obj.year)
+
+    class Meta:
+        model = Car
+        fields = [
+            'make',
+            'model',
+            'year',
+            'age',
+            'price',
+            'mileage',
         ]
 
 

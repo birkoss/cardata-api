@@ -13,7 +13,7 @@ from birkoss.helpers import create_error_response, validate_date, create_error_m
 from dealers.models import fetch_dealer
 from cars.models import Car, CarHistory, Make, Model, fetch_car, fetch_make, fetch_model  # nopep8
 
-from .serializers import CarSerializer, CarQuerySerializer, CarWriteSerializer, CarPatchSerializer, HistorySerializer, MakeSerializer, ModelSerializer, SaleSerializer  # nopep8
+from .serializers import CarExportSerializer, CarSerializer, CarQuerySerializer, CarWriteSerializer, CarPatchSerializer, HistorySerializer, MakeSerializer, ModelSerializer, SaleSerializer  # nopep8
 
 
 class cars(APIView):
@@ -54,6 +54,39 @@ class cars(APIView):
             'queries': len(connection.queries),
             'cars_count': total_cars,
             'pages_count': math.ceil(total_cars / limit)
+        }, status=status.HTTP_200_OK)
+
+
+class export(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        filters = Q()
+
+        cars = Car.objects.filter(
+            filters
+        ).order_by(
+            "?"
+        ).select_related("model").select_related("model__make")
+
+        total_cars = len(cars)
+
+        limit = 5
+        _limit = request.GET.get("limit", 5)
+        if _limit is not None or _limit.isnumeric():
+            # @TODO: Warn when over or under the limit
+            limit = min(1000, max(5, int(_limit)))
+
+        page = 1
+
+        serializer = CarExportSerializer(
+            instance=cars[(page - 1) * limit: page * limit],
+            many=True
+        )
+
+        return Response({
+            'cars': serializer.data,
         }, status=status.HTTP_200_OK)
 
 

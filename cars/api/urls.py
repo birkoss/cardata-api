@@ -20,6 +20,11 @@ urlpatterns = [
         name='cars'
     ),
     path(
+        'export',
+        api_views.export.as_view(),
+        name='export'
+    ),
+    path(
         'car/<str:car_id>',
         api_views.car.as_view(),
         name='car'
